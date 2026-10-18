@@ -30,4 +30,11 @@ with redirect_stdout(buf):
     b.main()
 out = buf.getvalue()
 assert "命中 1 条" in out and "10.0倍 100赞" in out and "official" not in out, out
+
+# --days：三天前的帖子不该出现在最近 1 天里
+buf = io.StringIO()
+sys.argv = ["bench_search.py", d, "沙箱", "--days", "1"]
+with redirect_stdout(buf):
+    b.main()
+assert "帖子：命中 0 条" in buf.getvalue(), buf.getvalue()
 print("PASS")

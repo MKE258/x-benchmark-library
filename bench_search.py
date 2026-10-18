@@ -8,6 +8,7 @@
   python -I bench_search.py <datadir> 关键词1 [关键词2 ...] [--top 15] [--full 3] [--covers 5] [--out <目录>]
   python -I bench_search.py <datadir> --check "候选标题1" [--check "候选标题2" ...]
 关键词之间是「或」，命中越多越靠前。
+--days N：只列最近 N 天发的（写短帖前看同圈这几天谁已经说过；倍数仍按该号全部内容的中位数算）。
 --covers N：把同题长文里排名靠前、带封面的 N 张封面图下载到 <out>/covers，供人看。
 --check：拿候选标题和全库长文标题比字面重合度（中文按两字片段算），列出最像的 3 个。
 """
@@ -107,7 +108,7 @@ def check_titles(datadir, cands):
 def main():
     args = sys.argv[1:]
     datadir = args[0]
-    opts = {"--top": "15", "--full": "0", "--covers": "0", "--out": ""}
+    opts = {"--top": "15", "--full": "0", "--covers": "0", "--out": "", "--days": "0"}
     kws, checks, i = [], [], 1
     while i < len(args):
         if args[i] == "--check":
@@ -124,6 +125,7 @@ def main():
         if not kws:
             return
     top, nfull, ncov = int(opts["--top"]), int(opts["--full"]), int(opts["--covers"])
+    days = float(opts["--days"])
     out = opts["--out"] or datadir
 
     hits = []
@@ -136,7 +138,7 @@ def main():
                     continue  # 长文的转发壳，正文在 articles 里
                 t = text_of(x, kind)
                 n = sum(1 for k in kws if k in t.lower())
-                if n:
+                if n and (not days or age_hours(x) <= days * 24):
                     likes = x.get("likes") or 0
                     hits.append((kind, u, n, likes / med[u], likes, x, t))
 

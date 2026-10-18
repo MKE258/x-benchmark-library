@@ -9,8 +9,8 @@
 | 文件 | 作用 |
 | --- | --- |
 | `fx_scrape.py` | fxtwitter 接口的抓取与翻页，断点续跑，已抓过的号跳过 |
-| `bench_scrape.py` | 按号单批量抓原创帖（每号约 300 条）和长文列表（每号最多 500 篇），不抓回复 |
-| `bench_search.py` | 按关键词检索，按倍数排序；`--full` 拉长文全文，`--covers` 下载同题封面，`--check` 查标题撞题 |
+| `bench_scrape.py` | 按号单批量抓原创帖（每号约 300 条）和长文列表（每号最多 500 篇），不抓回复；`--update` 只补新帖 |
+| `bench_search.py` | 按关键词检索，按倍数排序；`--days` 只看最近几天，`--full` 拉长文全文，`--covers` 下载同题封面，`--check` 查标题撞题 |
 | `bench_topcovers.py` | 不限主题，取全库倍数最高的 16 张长文封面 |
 | `selftest.py` | 合成数据自测，不联网 |
 
@@ -32,6 +32,12 @@
 
    速度看接口状态，有时一个号要好几分钟。中途断了重跑同一条命令，已抓过的号会跳过。
 
+   之后想补新帖，加 `--update`：已有的号从最新一页往后翻，翻到一整页都是库里已有的就停，最多 5 页，新帖合并进原文件：
+
+   ```bash
+   python bench_scrape.py accounts.txt data --update
+   ```
+
 3. 检索：
 
    ```bash
@@ -39,9 +45,10 @@
    python bench_search.py data --check "候选标题一" --check "候选标题二"
    python bench_search.py data 对标 --covers 3 --out 文章目录
    python bench_topcovers.py data 文章目录/covers/top
+   python bench_search.py data 关键词 --days 3 --top 10
    ```
 
-   关键词之间是「或」，命中词越多越靠前，同样命中数按倍数排。
+   关键词之间是「或」，命中词越多越靠前，同样命中数按倍数排。`--days 3` 用来写短帖前看同圈这几天谁已经说过；发出不满 24 小时的帖子赞还没涨完，倍数偏低。
 
 ## 倍数怎么算
 
